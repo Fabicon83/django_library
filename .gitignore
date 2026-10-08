@@ -25,6 +25,9 @@ staticfiles/
 # Diagrammi generati (django-extensions graph_models)
 *_models.png
 
+# Guida didattica dettagliata (riferimento personale, non per il repo pubblico)
+docs/
+
 # Editor / IDE
 .vscode/
 .idea/
