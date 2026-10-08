@@ -1,0 +1,47 @@
+services:
+  web:
+    build:
+      context: ./docker/python
+      args:
+        UID: 1035402654      # id -u
+        GID: 1035402619      # id -g
+    image: django-learn:py3.14
+    container_name: dj_web
+    env_file: .env
+    volumes:
+      - ./backend:/app
+      - poetry_cache:/home/app/.cache/pypoetry
+    ports:
+      - "8100:8000"
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18
+    container_name: dj_db
+    env_file: .env
+    ports:
+      - "5440:5432"
+    volumes:
+      # Da PostgreSQL 18 l'immagine vuole il volume su /var/lib/postgresql (non più .../data)
+      - db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 20
+
+  valkey:
+    image: valkey/valkey:9-alpine
+    container_name: dj_valkey
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: dj_mailpit
+    ports:
+      - "8036:8025"
+
+volumes:
+  db_data:
+  poetry_cache:
