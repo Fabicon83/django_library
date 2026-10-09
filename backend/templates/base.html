@@ -1,11 +1,54 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Biblioteca{% endblock %}</title>
-</head>
-<body>
-<main>{% block content %}{% endblock %}</main>
-</body>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 60rem;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 0.5rem;
+      }
+      nav form {
+        margin-left: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.3rem;
+        border-bottom: 1px solid #eee;
+      }
+      .success {
+        color: green;
+      }
+      .error,
+      .errorlist {
+        color: #b00;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="{% url 'catalog:book_list' %}">Catalogo</a>
+    </nav>
+    {% for message in messages %}
+      <p class="{{ message.tags }}">{{ message }}</p>
+    {% endfor %}
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+  </body>
 </html>

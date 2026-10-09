@@ -146,3 +146,18 @@ MAILERS = {
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Debug toolbar solo in sviluppo (è nel gruppo dev di Poetry) e mai durante i test:
+# pytest forza DEBUG=False, gli URL della toolbar sparirebbero ma il middleware resterebbe
+TESTING = "PYTEST_VERSION" in os.environ
+if DEBUG and not TESTING:
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    # In Docker la richiesta arriva dall'IP del gateway, non da 127.0.0.1: INTERNAL_IPS non basta
+    DEBUG_TOOLBAR_CONFIG = {"SHOW_TOOLBAR_CALLBACK": lambda request: True}
+
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "catalog:book_list"
+LOGOUT_REDIRECT_URL = "catalog:book_list"

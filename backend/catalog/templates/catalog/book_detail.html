@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block content %}
+    <h1>{{ book.title }}</h1>
+    <p>
+        {{ book.authors.all|join:", " }} · {{ book.publisher }} · {{ book.published_year }} ·
+        {{ book.get_language_display }}{% if book.pages %} · {{ book.pages }} pagine{% endif %}<br>
+        ISBN {{ book.isbn }} · {{ book.subjects.all|join:", " }}
+    </p>
+    <h2>Copie</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Codice</th>
+                <th>Sede</th>
+                <th>Collocazione</th>
+                <th>Stato</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for copy in book.copies.all %}
+                <tr>
+                    <td>{{ copy.barcode }}</td>
+                    <td>{{ copy.branch }}</td>
+                    <td>{{ copy.shelf }}</td>
+                    <td>{{ copy.get_status_display }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

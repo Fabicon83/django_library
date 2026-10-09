@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Catalogo{% endblock %}
+{% block content %}
+  <h1>Catalogo</h1>
+  <form method="get">
+    <input type="search"
+           name="q"
+           value="{{ request.GET.q }}"
+           placeholder="Cerca un titolo" />
+    <select name="subject">
+      <option value="">Tutti i soggetti</option>
+      {% for s in subjects %}
+        <option value="{{ s.slug }}"
+                {% if s.slug == request.GET.subject %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+    <button>Filtra</button>
+  </form>
+  <table>
+    <thead>
+      <tr>
+        <th>Titolo</th>
+        <th>Autori</th>
+        <th>Editore</th>
+        <th>Anno</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for book in books %}
+        <tr>
+          <td><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></td>
+          <td>{{ book.authors.all|join:", " }}</td>
+          <td>{{ book.publisher }}</td>
+          <td>{{ book.published_year }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4">Nessun libro trovato.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if is_paginated %}
+    {# querystring (Django 5.1+) tiene q e subject dell'URL attuale e cambia solo page #}
+    <p>
+      {% if page_obj.has_previous %}<a href="{% querystring page=page_obj.previous_page_number %}">« Precedente</a>{% endif %} Pagina {{ page_obj.number }} di {{ page_obj.paginator.num_pages }} {% if page_obj.has_next %}<a href="{% querystring page=page_obj.next_page_number %}">Successiva »</a>{% endif %}
+    </p>
+  {% endif %}
+{% endblock %}
