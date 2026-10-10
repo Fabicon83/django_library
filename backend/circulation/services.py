@@ -97,7 +97,7 @@ def renew(*, loan_id: int, member: Member) -> Loan:
 @transaction.atomic
 def reserve(*, book_id: int, member: Member) -> Reservation:
     if Copy.objects.filter(book_id=book_id, status=Copy.Status.AVAILABLE).exists():
-        raise LoanError("Ci sono copie disponibili: prendi in prestito.")
+        raise LoanError("Ci sono copie disponibili: prendine una in prestito.")
     try:
         return Reservation.objects.create(book_id=book_id, member=member)
     except IntegrityError:

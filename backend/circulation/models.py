@@ -1,4 +1,3 @@
-from django.db.models import constraints
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -90,7 +89,7 @@ class Loan(models.Model):
     @property
     def can_renew(self) -> bool:
         # Serve al template (bottone "Rinnova" visibile solo se vero) senza duplicare
-        # qui la numero di MAX_RENEWALS: la stessa condizione è controllata di nuovo,
+        # qui il numero di MAX_RENEWALS: la stessa condizione è controllata di nuovo,
         # lato server, in services.renew() prima di modificare i dati.
         return (
             self.returned_at is None
