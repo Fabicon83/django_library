@@ -1,3 +1,5 @@
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.db import models
 from django.urls import reverse
 
@@ -10,7 +12,13 @@ class Author(models.Model):
         ordering = ["name"]
         verbose_name = "autore"
         verbose_name_plural = "autori"
-        indexes = [models.Index(fields=["name"])]
+        indexes = [
+            models.Index(fields=["name"]),
+            # trigrammi: ricerca tollerante agli errori di battitura
+            GinIndex(
+                fields=["name"], name="author_name_trgm", opclasses=["gin_trgm_ops"]
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.name
@@ -69,6 +77,12 @@ class Book(models.Model):
         Subject, related_name="books", blank=True, verbose_name="soggetti"
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    # Colonna calcolata da PostgreSQL: si aggiorna da sola quando cambia il titolo
+    search_vector = models.GeneratedField(
+        expression=SearchVector("title", config="italian"),
+        output_field=SearchVectorField(),
+        db_persist=True,
+    )
 
     class Meta:
         ordering = ["title"]
@@ -77,6 +91,7 @@ class Book(models.Model):
         indexes = [
             models.Index(fields=["title"]),
             models.Index(fields=["published_year"]),
+            GinIndex(fields=["search_vector"], name="book_search_gin"),
         ]
         constraints = [
             models.CheckConstraint(
