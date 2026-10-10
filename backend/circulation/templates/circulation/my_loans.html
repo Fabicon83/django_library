@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}I miei prestiti{% endblock %}
+{% block content %}
+    <h1>I miei prestiti</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Libro</th>
+                <th>Copia</th>
+                <th>Prestato il</th>
+                <th>Scadenza</th>
+                <th>Restituito</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loan in loans %}
+                <tr>
+                    <td>{{ loan.copy.book }}</td>
+                    <td>{{ loan.copy }}</td>
+                    <td>{{ loan.loaned_at|date:"d/m/Y" }}</td>
+                    <td {% if loan.is_overdue %}class="error"{% endif %}>{{ loan.due_at|date:"d/m/Y" }}</td>
+                    <td>{{ loan.returned_at|date:"d/m/Y"|default:"—" }}</td>
+                    <td>
+                        {% if loan.can_renew %}
+                            <form method="post" action="{% url 'circulation:renew' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="loan_id" value="{{ loan.id }}">
+                                <button type="submit">Rinnova</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6">Nessun prestito.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -43,6 +43,19 @@
   <body>
     <nav>
       <a href="{% url 'catalog:book_list' %}">Catalogo</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'circulation:my_loans' %}">I miei prestiti</a>
+        {% if perms.circulation.add_loan %}
+          <a href="{% url 'circulation:desk' %}">Banco prestiti</a>
+        {% endif %}
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <span>Ciao, {{ user.username }}</span>
+          <button type="submit">Esci</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}">Accedi</a>
+      {% endif %}
     </nav>
     {% for message in messages %}
       <p class="{{ message.tags }}">{{ message }}</p>

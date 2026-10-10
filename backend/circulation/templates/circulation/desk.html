@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Banco prestiti{% endblock %}
+{% block content %}
+    <h1>Nuovo prestito</h1>
+    <p><a href="{% url 'circulation:return' %}">Registra una restituzione</a></p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button>Presta</button>
+    </form>
+{% endblock %}

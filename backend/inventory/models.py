@@ -22,6 +22,7 @@ class Copy(models.Model):
         ON_LOAN = "on_loan", "In prestito"
         REPAIR = "repair", "In riparazione"
         LOST = "lost", "Smarrita"
+        RESERVED = "reserved", "Riservata"
 
     book = models.ForeignKey(
         "catalog.Book",

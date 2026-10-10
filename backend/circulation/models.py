@@ -1,6 +1,13 @@
+from django.db.models import constraints
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+
+# Costanti di dominio: vivono qui (non in services.py) perché Loan.can_renew ne ha bisogno
+# e models.py non può importare da services.py (services.py importa già da models.py:
+# un import nell'altro verso creerebbe un ciclo).
+LOAN_DAYS = 30
+MAX_RENEWALS = 2
 
 
 class Member(models.Model):
@@ -79,3 +86,46 @@ class Loan(models.Model):
     @property
     def is_overdue(self) -> bool:
         return self.returned_at is None and self.due_at < timezone.now()
+
+    @property
+    def can_renew(self) -> bool:
+        # Serve al template (bottone "Rinnova" visibile solo se vero) senza duplicare
+        # qui la numero di MAX_RENEWALS: la stessa condizione è controllata di nuovo,
+        # lato server, in services.renew() prima di modificare i dati.
+        return (
+            self.returned_at is None
+            and not self.is_overdue
+            and self.renewals < MAX_RENEWALS
+        )
+
+
+class Reservation(models.Model):
+    book = models.ForeignKey(
+        "catalog.Book",
+        on_delete=models.PROTECT,
+        related_name="reservations",
+        verbose_name="libro",
+    )
+    member = models.ForeignKey(
+        Member,
+        on_delete=models.PROTECT,
+        related_name="reservations",
+        verbose_name="lettore",
+    )
+    created_at = models.DateTimeField("creata il", default=timezone.now)
+    fulfilled_at = models.DateTimeField("evasa il", null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "prenotazione"
+        verbose_name_plural = "prenotazioni"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["book", "member"],
+                condition=models.Q(fulfilled_at__isnull=True),
+                name="one_open_reservation_per_member_and_book",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.book} -> {self.member}"
